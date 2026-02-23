@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Python Editor</title>
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f0f2f5; }
+        .editor-container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; margin-top: 0; }
+        
+        #user-code {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #282c34;
+            color: #61dafb;
+            font-size: 16px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        #run-btn {
+            margin-top: 15px;
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        #run-btn:hover { background-color: #45a049; }
+
+        .output-label { margin-top: 25px; font-weight: bold; color: #555; display: block; }
+        
+        #output {
+            margin-top: 10px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            border-left: 5px solid #306998;
+        }
+    </style>
+</head>
+<body>
+
+<div class="editor-container">
+    <h2>🐍 Python Live Editor</h2>
+    <p>Type your Python code below and click <strong>Run Code</strong>.</p>
+
+    <textarea id="user-code" spellcheck="false">
+# Example Code
+name = "World"
+print(f"Hello, {name}!")
+
+for i in range(3):
+    print(f"Count: {i}")
+    </textarea>
+
+    <button id="run-btn" py-click="execute_python">Run Code</button>
+
+    <span class="output-label">Terminal Output:</span>
+    <div id="output">Initial loading of Python environment...</div>
+</div>
+
+<script type="py">
+    from pyscript import display, document
+
+    def execute_python(event):
+        # Get the code from the textarea
+        code = document.getElementById("user-code").value
+        
+        # Clear previous output
+        output_div = document.getElementById("output")
+        output_div.innerHTML = ""
+        
+        try:
+            # We use exec() to run the string as Python code
+            # We redirect 'print' statements to our output div
+            def custom_print(*args, **kwargs):
+                text = " ".join(map(str, args))
+                output_div.innerText += text + "\n"
+            
+            # Replace global print with our custom one for this execution
+            exec(code, {"print": custom_print})
+        except Exception as e:
+            output_div.innerText = f"Error: {str(e)}"
+
+    # Initial message once PyScript is ready
+    document.getElementById("output").innerText = "Ready. Enter code and press Run."
+</script>
+
+</body>
+</html>
